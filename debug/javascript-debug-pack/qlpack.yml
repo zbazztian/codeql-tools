@@ -1,0 +1,6 @@
+name: javascript-debug-pack
+version: 1.0.0
+defaultSuiteFile: default.qls
+dependencies:
+  codeql/javascript-queries: "*"
+libraryPathDependencies: codeql/javascript-all

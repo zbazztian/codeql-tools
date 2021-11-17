@@ -1,0 +1,19 @@
+name: 'Debug'
+description: 'Generates a report with various statistics for a given CodeQL database.'
+inputs:
+  codeql-path:
+    description: 'Path of the CodeQL toolchain.'
+    required: true
+  database-path:
+    description: "Path to the CodeQL database for which to generate a report."
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: debug
+      run: |
+        python3 \
+          "${{ github.action_path }}/action_impl.py" \
+          "${{ inputs.codeql-path }}" \
+          "${{ inputs.database-path }}"
+      shell: bash

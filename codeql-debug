@@ -1,0 +1,3 @@
+#!/bin/sh
+HERE="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
+PYTHONPATH="$HERE" python3 -c "import debug; import sys; debug.main(sys.argv[1:])" "$@"
