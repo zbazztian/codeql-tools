@@ -8,45 +8,12 @@ import sys
 import shutil
 import itertools
 import hashlib
+import util
+from util import info, warning, error
 
 QLPACK_NAME_PATTERN = re.compile('^(name:\s+)(\S+)(.*)$', re.MULTILINE)
 QLPACK_VERSION_PATTERN = re.compile('^(version:\s+)(\S+)(.*)$', re.MULTILINE)
 QLPACK_DEFAULTSUITEFILE_PATTERN = re.compile('^(defaultSuiteFile:\s+)(\S+)(.*)$', re.MULTILINE)
-
-
-def clear_dir(dirpath):
-  shutil.rmtree(dirpath, True)
-  os.makedirs(dirpath)
-  return dirpath
-
-
-def make_key(s):
-  sha1 = hashlib.sha1()
-  sha1.update(s.encode('utf-8'))
-  return sha1.hexdigest()
-
-
-def error(msg):
-  print('ERROR: ' + msg)
-  sys.exit(1)
-
-
-def info(msg):
-  print('INFO: ' + msg)
-
-
-def warning(msg):
-  print('WARNING: ' + msg)
-
-
-def read_file(fpath):
-  with open(fpath, 'r') as f:
-    return f.read()
-
-
-def write_file(fpath, contents):
-  with open(fpath, 'w') as f:
-    f.write(contents)
 
 
 def is_pack(directory):
@@ -54,19 +21,19 @@ def is_pack(directory):
 
 
 def get_pack_desc(pack):
-  return read_file(join(pack, 'qlpack.yml'))
+  return util.read_file(join(pack, 'qlpack.yml'))
 
 
 def set_pack_desc(pack, desc):
-  write_file(join(pack, 'qlpack.yml'), desc)
+  util.write_file(join(pack, 'qlpack.yml'), desc)
 
 
 def get_pack_hash(pack):
-  return read_file(join(pack, 'codeql_inject_hash.qll'))
+  return util.read_file(join(pack, 'codeql_inject_hash.qll'))
 
 
 def set_pack_hash(pack, h):
-  return write_file(join(pack, 'codeql_inject_hash.qll'), h)
+  return util.write_file(join(pack, 'codeql_inject_hash.qll'), h)
 
 
 def get_pack_info(packdir):
@@ -138,7 +105,7 @@ def inject_import(qlpath, importname):
     re.MULTILINE
   )
 
-  contents = read_file(qlpath)
+  contents = util.read_file(qlpath)
 
   if IMPORT_CUSTOMIZATIONS_LIB_PATTERN.search(contents):
     info('Customizations were already injected into {qlpath}. Nothing to be done.'.format(qlpath=qlpath))
@@ -146,7 +113,7 @@ def inject_import(qlpath, importname):
     # inject the import to the end of the file
     info('Importing {importname} into "{qlpath}" ...'.format(importname=importname, qlpath=qlpath))
     contents = contents + '\n' + 'import ' + importname
-    write_file(qlpath, contents)
+    util.write_file(qlpath, contents)
 
 
 def parse_pattern(line):
@@ -220,7 +187,7 @@ def inject(args):
 
   # copy customization files into pack and inject the given qlls
   for qll, file_pattern in args.patterns:
-    qllcopyname = 'inject_{hashcode}'.format(hashcode=make_key(read_file(qll)))
+    qllcopyname = 'inject_{hashcode}'.format(hashcode=util.make_key(util.read_file(qll)))
     qllcopy = join(args.pack, qllcopyname + '.qll')
     if isfile(qllcopy):
       info('{f} already exists. Will not copy.'.format(f=qllcopy))
@@ -248,7 +215,7 @@ def inject(args):
   info('Writing package hash...')
   sha1 = hashlib.sha1()
   for qll, file_pattern in args.patterns:
-    sha1.update(read_file(qll).encode('utf-8'))
+    sha1.update(util.read_file(qll).encode('utf-8'))
     sha1.update(file_pattern.encode('utf-8'))
   sha1.update(base_pack_version.encode('utf-8'))
   sha1.update(args.default_suite.encode('utf-8'))

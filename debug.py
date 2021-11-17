@@ -13,6 +13,7 @@ from datetime import datetime
 import inject
 import json
 import util
+from util import error
 
 DB_LANG_PATTERN = re.compile('^(primaryLanguage:\s+")(\S+)"(.*)$', re.MULTILINE)
 
@@ -27,7 +28,7 @@ def remove(fpath):
 
 def get_db_lang(dbpath):
   dbyml = join(dbpath, 'codeql-database.yml')
-  contents = inject.read_file(dbyml)
+  contents = util.read_file(dbyml)
   match = DB_LANG_PATTERN.search(contents)
   if not match:
     raise Exception('Unable to parse {dbyml}'.format(dbyml=dbyml))
@@ -151,20 +152,26 @@ def html_tag(tag, value, attributes = {}):
     value=value
   )
 
+
 def table(contents):
   return html_tag('table', contents, {'border': '1'})
+
 
 def tr(contents):
   return html_tag('tr', contents)
 
+
 def th(contents):
   return html_tag('th', contents, {'align': 'center'})
+
 
 def td(contents):
   return html_tag('td', contents, {'align': 'center'})
 
+
 def h1(contents):
   return html_tag('h1', contents)
+
 
 def html_table(headers, rows):
   return table(
@@ -183,10 +190,10 @@ def debug(args):
   print(args.search_path)
 
   if not isfile(args.codeql_path):
-    inject.error('Given path is not a CodeQL executable: ' + args.codeql_path)
+    error('Given path is not a CodeQL executable: ' + args.codeql_path)
 
   if not isdir(args.db_path):
-    inject.error('Given path is not a database: ' + args.db_path)
+    error('Given path is not a database: ' + args.db_path)
 
   if args.search_path is None:
     args.search_path = join(dirname(args.codeql_path), 'qlpacks')
@@ -195,9 +202,9 @@ def debug(args):
   codeql('version')
   codeql('resolve', 'qlpacks')
 
-  inject.clear_dir(args.output_dir)
+  util.clear_dir(args.output_dir)
   tmpdir = join(args.output_dir, 'tmp')
-  inject.clear_dir(tmpdir)
+  util.clear_dir(tmpdir)
   modified_query_pack = join(tmpdir, 'modified-pack')
 
   lang = get_db_lang(args.db_path)
@@ -213,17 +220,17 @@ def debug(args):
       inject_string = inject_string + '\n'
     inject_string = inject_string + join(debug_pack, 'SourcesAndSinks.qll') + ':' + pack_relpath(q)
 
-#  inject.main([
-#    '--pack', modified_query_pack,
-#    inject_string
-#  ])
-#
-#  codeql(
-#    'database', 'run-queries',
-#    '--threads', '0',
-#    args.db_path,
-#    'debug/javascript-debug-pack/default.qls'
-#  )
+  inject.main([
+    '--pack', modified_query_pack,
+    inject_string
+  ])
+
+  codeql(
+    'database', 'run-queries',
+    '--threads', '0',
+    args.db_path,
+    'debug/javascript-debug-pack/default.qls'
+  )
 
   query_source_sink_counts = []
   for ql in resolve_queries(codeql, join(debug_pack, 'source_sink_queries.qls')):
