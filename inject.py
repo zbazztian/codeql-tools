@@ -75,7 +75,7 @@ def list_packs(search_path):
       yield dirname(qlpackyml)
 
 
-def find_query_pack(search_path, lang):
+def find_standard_query_pack(search_path, lang):
   for p in list_packs(search_path):
     name, _ = get_pack_info(p)
     if name == 'codeql/' + lang + '-queries':

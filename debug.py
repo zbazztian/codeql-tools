@@ -15,7 +15,17 @@ import json
 import util
 from util import error
 
+
+ExternalAPIWithUntrustedDataCountsQueries = {
+  'cpp': 'Security/CWE/CWE-020/CountUntrustedDataToExternalAPI.ql',
+  'csharp': 'Security Features/CWE-020/ExternalAPIsUsedWithUntrustedData.ql',
+  'java': 'Security/CWE/CWE-020/ExternalAPIsUsedWithUntrustedData.ql',
+  'javascript': 'Security/CWE-020/ExternalAPIsUsedWithUntrustedData.ql',
+  'python': 'Security/CWE-020-ExternalAPIs/ExternalAPIsUsedWithUntrustedData.ql'
+}
+
 DB_LANG_PATTERN = re.compile('^(primaryLanguage:\s+")(\S+)"(.*)$', re.MULTILINE)
+
 
 def change_ext(extfrom, extto, path):
   return re.sub(re.escape(extfrom) + '$', extto, path)
@@ -81,13 +91,13 @@ def codeql_bind_search_path(codeql, search_path):
 
 
 
-def read_query_results(codeql, bqrs_path, resultset):
+def read_bqrs(codeql, bqrs_path, resultset='#select', entities='url'):
   output = codeql(
     'bqrs', 'decode',
     '--format', 'csv',
     '--no-titles',
     '--result-set', resultset,
-    '--entities', 'url',
+    '--entities', entities,
     bqrs_path
   ).split('\n')
 
@@ -108,7 +118,7 @@ def pack_relpath(path):
   return relpath(path, get_pack_from_file(path))
 
 
-def query_result_file(query_path, dbpath):
+def get_bqrs(query_path, dbpath):
   return join(
     dbpath,
     'results',
@@ -119,7 +129,7 @@ def query_result_file(query_path, dbpath):
 
 def get_query_results(codeql, qls, dbpath):
   for q in resolve_queries(codeql, qls):
-    yield query_result_file(q, dbpath)
+    yield get_bqrs(q, dbpath)
 
 
 def resolve_queries(codeql, qls):
@@ -183,6 +193,27 @@ def html_table(headers, rows):
   )
 
 
+def get_query_source_sink_counts(codeql, debug_pack, dbpath):
+  result = []
+  for ql in resolve_queries(codeql, join(debug_pack, 'source_sink_queries.qls')):
+    bqrsf = get_bqrs(ql, dbpath)
+    metadata = query_metadata(codeql, ql)
+    for r in read_bqrs(codeql, bqrsf, 'source_and_sink_counts'):
+      result.append([metadata['id'] + ': ' + r[0], r[1], r[2]])
+
+  return result
+
+
+def get_external_api_with_untrusted_data_counts(codeql, lang, pack, dbpath):
+  result = []
+  if lang in ExternalAPIWithUntrustedDataCountsQueries:
+    ql = join(pack, ExternalAPIWithUntrustedDataCountsQueries[lang])
+    bqrs = get_bqrs(ql, dbpath)
+    for r in read_bqrs(codeql, bqrs, '#select', 'string'):
+      result.append(r)
+  return result
+
+
 def debug(args):
   print(args.db_path)
   print(args.codeql_path)
@@ -208,7 +239,7 @@ def debug(args):
   modified_query_pack = join(tmpdir, 'modified-pack')
 
   lang = get_db_lang(args.db_path)
-  pack = inject.find_query_pack(args.search_path, lang)
+  pack = inject.find_standard_query_pack(args.search_path, lang)
   debug_pack = join('debug', lang + '-debug-pack')
   shutil.copytree(pack, modified_query_pack)
   args.search_path = 'debug' + ':' + tmpdir + ':' + args.search_path
@@ -232,30 +263,41 @@ def debug(args):
     'debug/javascript-debug-pack/default.qls'
   )
 
-  query_source_sink_counts = []
-  for ql in resolve_queries(codeql, join(debug_pack, 'source_sink_queries.qls')):
-    bqrsf = query_result_file(ql, args.db_path)
-    metadata = query_metadata(codeql, ql)
-    for r in read_query_results(codeql, bqrsf, 'source_and_sink_counts'):
-      query_source_sink_counts.append([metadata['id'] + ': ' + r[0], r[1], r[2]])
+  query_source_sink_counts = sorted(
+    get_query_source_sink_counts(codeql, debug_pack, args.db_path),
+    key=lambda el: el[0]
+  )
+
+  externalAPIWithUntrustedDataCounts = get_external_api_with_untrusted_data_counts(codeql, lang, modified_query_pack, args.db_path)
+  print(externalAPIWithUntrustedDataCounts)
 
   with open(join(args.output_dir, 'index.html'), 'w') as f:
     f.write('<html>\n<body>\n')
+
+    # system information
+    f.write(h1('System information'))
+    f.write(
+      html_table(
+        ['component', 'information'],
+        util.system_info()
+      )
+    )
 
     # sources and sinks
     f.write(h1('Summary of Sources and Sinks'))
     f.write(
       html_table(
         ['query id: configuration', '#sources', '#sinks'],
-        [r for r in sorted(query_source_sink_counts, key=lambda el: el[0])]
+        [r for r in query_source_sink_counts]
       )
     )
 
-    f.write(h1('System information'))
+    # external apis with untrusted data counts
+    f.write(h1('External APIs with untrusted data'))
     f.write(
       html_table(
-        ['component', 'information'],
-        util.system_info()
+        ['API', '#uses', '#untrusted sources'],
+        externalAPIWithUntrustedDataCounts
       )
     )
 
