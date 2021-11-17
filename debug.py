@@ -36,13 +36,15 @@ def remove(fpath):
     os.remove(fpath)
 
 
-def get_db_lang(dbpath):
-  dbyml = join(dbpath, 'codeql-database.yml')
-  contents = util.read_file(dbyml)
-  match = DB_LANG_PATTERN.search(contents)
-  if not match:
-    raise Exception('Unable to parse {dbyml}'.format(dbyml=dbyml))
-  return match.group(2)
+def get_db_lang(codeql, dbpath):
+  j = json.loads(
+    codeql(
+      'resolve', 'database',
+      '--format', 'json',
+      dbpath
+    )
+  )
+  return j['languages'][0]
 
 
 def init_codeql(codeql_path):
@@ -238,7 +240,7 @@ def debug(args):
   util.clear_dir(tmpdir)
   modified_query_pack = join(tmpdir, 'modified-pack')
 
-  lang = get_db_lang(args.db_path)
+  lang = get_db_lang(codeql, args.db_path)
   pack = inject.find_standard_query_pack(args.search_path, lang)
   debug_pack = join('debug', lang + '-debug-pack')
   shutil.copytree(pack, modified_query_pack)
