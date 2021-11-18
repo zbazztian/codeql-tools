@@ -273,11 +273,15 @@ def debug(args):
     args.search_path = join(dirname(args.codeql_path), 'qlpacks')
   info('search path: ' + args.search_path)
 
-  lang = get_db_lang(codeql, args.db_path)
-  info('language: ' + lang)
-
   info('output directory: ' + args.output_dir)
   util.clear_dir(args.output_dir)
+
+  info('testing codeql executable...')
+  codeql('version')
+  codeql('resolve', 'qlpacks')
+
+  lang = get_db_lang(codeql, args.db_path)
+  info('language: ' + lang)
 
   tmpdir = join(args.output_dir, 'tmp')
   info('temp directory: ' + tmpdir)
@@ -285,10 +289,6 @@ def debug(args):
 
   debug_pack = join(basedir, 'debug', lang + '-debug-pack')
   info('debug pack at: ' + debug_pack)
-
-  info('testing codeql executable...')
-  codeql('version')
-  codeql('resolve', 'qlpacks')
 
   pack = inject.find_standard_query_pack(args.search_path, lang)
   info('standard (unmodified) query pack found at: ' + pack)
