@@ -25,7 +25,7 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Initialize CodeQL
-      id:   codeqltoolchain
+      #id:   codeqltoolchain
       uses: github/codeql-action/init@v1
       with:
         languages: ${{ matrix.language }}
@@ -39,8 +39,8 @@ jobs:
         skip-queries: true
 
     - run: |
-       echo ${{ toJson(steps) }}
-       echo ${{ toJson(matrix) }}
+       echo "${{ toJson(steps) }}"
+       echo "${{ toJson(matrix) }}"
 
     - name: CodeQL Debug Report
       uses: zbazztian/codeql-tools/debug@main
