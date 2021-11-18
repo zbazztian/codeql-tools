@@ -1,3 +1,4 @@
+import platform
 import argparse
 import sys
 import glob
@@ -220,10 +221,39 @@ def get_external_api_with_untrusted_data_counts(codeql, lang, pack, dbpath):
   return result
 
 
+def codeql_executable_name():
+  if platform.system() == 'Windows':
+    return 'codeql.exe'
+  else:
+    return 'codeql'
+
+
+def is_codeql_distro(directory):
+  return isdir(join(directory, 'tools')) and \
+         isfile(join(directory, codeql_executable_name()))
+
+
+def find_codeql_distros(directory):
+  for exec_candidate in glob.iglob(
+    join(directory, '**', codeql_executable_name()),
+    recursive=True
+  ):
+    candidate_distro = dirname(exec_candidate)
+    if is_codeql_distro(candidate_distro):
+      yield candidate_distro
+
+
 def debug(args):
   basedir = dirname(__file__)
   info('basedir: ' + basedir)
 
+  if isdir(args.codeql_path):
+    info('Attempting to find codeql distributions under given directory "' + args.codeql_path + '"...')
+    distros = list(find_codeql_distros(args.codeql_path))
+    if not distros:
+      error('Could not find any codeql distributions under "' + args.codeql_path + '"!')
+    info('Found the following distributions: ' + os.linesep.join(distros))
+    args.codeql_path = join(distros[0], 'codeql')
   if not isfile(args.codeql_path):
     error('Given path is not a CodeQL executable: ' + args.codeql_path)
   info('codeql path: ' + args.codeql_path)
@@ -276,12 +306,14 @@ def debug(args):
     inject_string
   ])
 
-  codeql(
+  analysis_params = [
     'database', 'run-queries',
-    '--threads', '1',
+  ] + (['--ram', args.ram] if args.ram != '0' else []) + [
+    '--threads', args.threads,
     args.db_path,
     join(debug_pack, 'default.qls')
-  )
+  ]
+  codeql(*analysis_params)
 
   query_source_sink_counts = sorted(
     get_query_source_sink_counts(codeql, debug_pack, args.db_path),
@@ -716,6 +748,18 @@ def main(args):
     help='CodeQL search path for packs',
     required=False,
     default=None
+  )
+  parser.add_argument(
+    '--threads',
+    help='Number of threads used for the analysis',
+    required=False,
+    default='1'
+  )
+  parser.add_argument(
+    '--ram',
+    help='RAM used for the analysis',
+    required=False,
+    default='0'
   )
   parser.add_argument(
     'db_path',

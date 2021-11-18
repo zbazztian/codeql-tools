@@ -2,8 +2,9 @@ name: 'Debug'
 description: 'Generates a report with various statistics for a given CodeQL database.'
 inputs:
   codeql-path:
-    description: 'Path to the CodeQL executable.'
-    required: true
+    description: 'Path to the CodeQL executable or to a directory which contains at least one CodeQL distribution.'
+    required: false
+    default: "${{ runner.tool_cache }}"
   database-path:
     description: 'Path to the CodeQL database for which to generate a report.'
     required: false
@@ -12,6 +13,14 @@ inputs:
     description: 'Directory in which to output the debug report.'
     required: false
     default: 'codeql-debug-report'
+  threads:
+    description: 'Number of threads used for the analysis'
+    required: false
+    default: '1'
+  ram:
+    description: 'RAM in mega bytes used for the analysis'
+    required: false
+    default: '0'
 runs:
   using: "composite"
   steps:
@@ -20,5 +29,7 @@ runs:
         "${{ github.action_path }}/../codeql-debug" \
         --codeql-path "${{ inputs.codeql-path }}" \
         --output-dir "${{ inputs.output-dir }}" \
+        --threads "${{ inputs.threads }}" \
+        --ram  "${{ inputs.ram }}" \
         "${{ inputs.database-path }}"
       shell: bash
