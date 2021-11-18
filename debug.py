@@ -280,7 +280,7 @@ def debug(args):
   for q in resolve_queries(codeql, join(debug_pack, 'source_sink_queries.qls')):
     if inject_string:
       inject_string = inject_string + '\n'
-    inject_string = inject_string + join(debug_pack, 'SourcesAndSinks.qll') + ':' + pack_relpath(q)
+    inject_string = inject_string + join(debug_pack, 'SourcesAndSinks.qll') + os.pathsep + pack_relpath(q)
 
   inject.main([
     '--pack', modified_query_pack,
