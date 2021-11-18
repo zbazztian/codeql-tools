@@ -120,10 +120,10 @@ def inject_import(qlpath, importname):
 
 
 def parse_pattern(line):
-    components = line.split(':')
+    components = line.split(os.pathsep)
 
     if len(components) != 2:
-      raise ValueError('Invalid pattern: "' + line + '" must contain exactly one separator (:)!')
+      raise ValueError('Invalid pattern: "' + line + '" must contain exactly one separator ({sep})!'.format(sep=os.pathsep))
 
     return components
 
