@@ -1,0 +1,45 @@
+name: "CodeQL Debug Report Test"
+
+on:
+  push:
+    branches: [ main ]
+  schedule:
+    - cron: '34 3 * * 6'
+
+jobs:
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'javascript' ]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Initialize CodeQL
+      id:   codeqltoolchain
+      uses: github/codeql-action/init@v1
+      with:
+        languages: ${{ matrix.language }}
+
+    - name: Autobuild
+      uses: github/codeql-action/autobuild@v1
+
+    - name: CodeQL Debug Report
+      uses: zbazztian/codeql-tools/debug@main
+      with:
+        codeql-path: ${{ steps.codeqltoolchain.outputs.codeql-path }}
+        
+    - name: Upload loc as a Build Artifact
+      uses: actions/upload-artifact@v2.2.0
+      with:
+        name: codeql-debug-report
+        path: codeql-debug-report
