@@ -2,11 +2,12 @@ name: 'Debug'
 description: 'Generates a report with various statistics for a given CodeQL database.'
 inputs:
   codeql-path:
-    description: 'Path of the CodeQL toolchain.'
+    description: 'Path to the CodeQL executable.'
     required: true
   database-path:
     description: 'Path to the CodeQL database for which to generate a report.'
-    required: true
+    required: false
+    default: '/home/runner/work/_temp/codeql_databases/javascript'
   output-dir:
     description: 'Directory in which to output the debug report.'
     required: false

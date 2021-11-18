@@ -263,7 +263,7 @@ def debug(args):
 
   codeql(
     'database', 'run-queries',
-    '--threads', '0',
+    '--threads', '1',
     args.db_path,
     join(debug_pack, 'default.qls')
   )
