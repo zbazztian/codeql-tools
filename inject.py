@@ -70,17 +70,13 @@ def set_pack_default_suite(packdir, default_suite):
 
 def list_packs(search_path):
   for sd in search_path.split(os.pathsep):
-    print('search-path-component: ' + sd)
     for qlpackyml in glob.iglob(join(sd, '**', 'qlpack.yml'), recursive=True):
       yield dirname(qlpackyml)
 
 
 def find_standard_query_pack(search_path, lang):
-  print('search-path: ' + search_path)
   for p in list_packs(search_path):
-    print(p)
     name, _ = get_pack_info(p)
-    print(name)
     if name == 'codeql/' + lang + '-queries':
       return p
   raise Exception('Query pack for language {lang} not found!'.format(lang=lang))

@@ -42,8 +42,6 @@ jobs:
       uses: zbazztian/codeql-tools/debug@main
       with:
         database-path: "${{ runner.temp }}/codeql_databases/${{ matrix.language }}"
-        ram: 5600
-        threads: 2
         #codeql-path: "${{ steps.codeqltoolchain.outputs.codeql-path }}"
 
     - name: Upload loc as a Build Artifact

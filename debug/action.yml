@@ -4,7 +4,7 @@ inputs:
   codeql-path:
     description: 'Path to the CodeQL executable or to a directory which contains at least one CodeQL distribution.'
     required: false
-    default: "${{ runner.tool_cache }}"
+    default: "${{ runner.tool_cache }}/CodeQL"
   database-path:
     description: 'Path to the CodeQL database for which to generate a report.'
     required: false

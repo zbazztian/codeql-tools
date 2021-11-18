@@ -221,6 +221,12 @@ def get_external_api_with_untrusted_data_counts(codeql, lang, pack, dbpath):
   return result
 
 
+def get_dependencies(codeql, pack, dbpath):
+  ql = join(pack, 'dependencies.ql')
+  bqrs = get_bqrs(ql, dbpath)
+  return read_bqrs(codeql, bqrs, '#select')
+
+
 def codeql_executable_name():
   if platform.system() == 'Windows':
     return 'codeql.exe'
@@ -321,7 +327,8 @@ def debug(args):
   )
 
   externalAPIWithUntrustedDataCounts = get_external_api_with_untrusted_data_counts(codeql, lang, modified_query_pack, args.db_path)
-  print(externalAPIWithUntrustedDataCounts)
+
+  dependencies = get_dependencies(codeql, debug_pack, args.db_path)
 
   with open(join(args.output_dir, 'index.html'), 'w') as f:
     f.write('<html>\n<body>\n')
@@ -335,12 +342,20 @@ def debug(args):
       )
     )
 
+    f.write(h1('Dependencies'))
+    f.write(
+      html_table(
+        ['name', 'uses'],
+        dependencies
+      )
+    )
+
     # sources and sinks
     f.write(h1('Summary of Sources and Sinks'))
     f.write(
       html_table(
         ['query id: configuration', '#sources', '#sinks'],
-        [r for r in query_source_sink_counts]
+        query_source_sink_counts
       )
     )
 
