@@ -38,10 +38,15 @@ jobs:
       with:
         skip-queries: true
 
+    - run: |
+       echo ${{ toJson(steps) }}
+       echo ${{ toJson(matrix) }}
+
     - name: CodeQL Debug Report
       uses: zbazztian/codeql-tools/debug@main
       with:
-        codeql-path: ${{ steps.codeqltoolchain.outputs.codeql-path }}
+        codeql-path: "${{ steps.codeqltoolchain.outputs.codeql-path }}"
+        database-path: "${{ runner.temp }}/codeql_databases/${{ matrix.language }}"
 
     - name: Upload loc as a Build Artifact
       uses: actions/upload-artifact@v2.2.0

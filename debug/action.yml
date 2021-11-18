@@ -6,8 +6,7 @@ inputs:
     required: true
   database-path:
     description: 'Path to the CodeQL database for which to generate a report.'
-    required: false
-    default: "${{ runner.temp }}/codeql_databases/javascript"
+    required: true
   output-dir:
     description: 'Directory in which to output the debug report.'
     required: false

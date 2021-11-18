@@ -322,6 +322,13 @@ def debug(args):
     )
 
     f.write('</body></html>\n')
+
+
+
+  # clean tmp directory
+  shutil.rmtree(tmpdir, True)
+
+
 #
 #      f.write('<tr>\n')
 #      f.write('  <td><a href="{relpath}">{nodetype}</a></td>\n'.format(
