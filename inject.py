@@ -2,7 +2,6 @@ import argparse
 import os
 import glob
 from os.path import join, isdir, dirname, isfile, relpath
-import yaml
 import re
 import sys
 import shutil
