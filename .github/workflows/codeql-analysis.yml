@@ -33,8 +33,10 @@ jobs:
     - name: Autobuild
       uses: github/codeql-action/autobuild@v1
 
-#    - name: Perform CodeQL Analysis
-#      uses: github/codeql-action/analyze@v1
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v1
+      with:
+        skip-queries: true
 
     - name: CodeQL Debug Report
       uses: zbazztian/codeql-tools/debug@main
