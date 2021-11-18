@@ -98,14 +98,14 @@ def codeql_bind_search_path(codeql, search_path):
 
 
 def read_bqrs(codeql, bqrs_path, resultset='#select', entities='url'):
-  output = codeql(
+  output = re.split('\r?\n', codeql(
     'bqrs', 'decode',
     '--format', 'csv',
     '--no-titles',
     '--result-set', resultset,
     '--entities', entities,
     bqrs_path
-  ).split('\n')
+  ))
 
   for row in csv.reader(o for o in output if o):
     yield row
@@ -139,10 +139,10 @@ def get_query_results(codeql, qls, dbpath):
 
 
 def resolve_queries(codeql, qls):
-  queries = codeql(
+  queries = re.split('\r?\n', codeql(
     'resolve', 'queries',
     qls
-  ).split('\n')
+  ))
   for q in queries:
     if q:
       yield q
