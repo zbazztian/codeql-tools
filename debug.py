@@ -253,7 +253,7 @@ def debug(args):
     if not distros:
       error('Could not find any codeql distributions under "' + args.codeql_path + '"!')
     info('Found the following distributions: ' + os.linesep.join(distros))
-    args.codeql_path = join(distros[0], 'codeql')
+    args.codeql_path = join(distros[0], codeql_executable_name())
   if not isfile(args.codeql_path):
     error('Given path is not a CodeQL executable: ' + args.codeql_path)
   info('codeql path: ' + args.codeql_path)
