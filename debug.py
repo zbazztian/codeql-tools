@@ -216,6 +216,17 @@ def get_external_api_with_untrusted_data_counts(codeql, lang, pack, dbpath):
   return result
 
 
+def finalize_database(codeql, dbpath):
+  if isdir(join(dbpath, 'db-' + get_db_lang(codeql, dbpath))):
+    info('Database {db} already finalized.'.format(db=dbpath))
+    return
+  codeql(
+    'database', 'finalize',
+    '--threads', '1',
+    dbpath
+  )
+
+
 def debug(args):
   info(args.db_path)
   info(args.codeql_path)
@@ -244,6 +255,7 @@ def debug(args):
   modified_query_pack = join(tmpdir, 'modified-pack')
 
   lang = get_db_lang(codeql, args.db_path)
+  print('lang: ' + lang)
   pack = inject.find_standard_query_pack(args.search_path, lang)
   debug_pack = join(basedir, 'debug', lang + '-debug-pack')
   shutil.copytree(pack, modified_query_pack)
@@ -260,6 +272,8 @@ def debug(args):
     '--pack', modified_query_pack,
     inject_string
   ])
+
+  finalize_database(codeql, args.db_path)
 
   codeql(
     'database', 'run-queries',
