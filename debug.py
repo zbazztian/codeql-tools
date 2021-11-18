@@ -220,17 +220,6 @@ def get_external_api_with_untrusted_data_counts(codeql, lang, pack, dbpath):
   return result
 
 
-def finalize_database(codeql, dbpath):
-  if isdir(join(dbpath, 'db-' + get_db_lang(codeql, dbpath))):
-    info('Database {db} already finalized.'.format(db=dbpath))
-    return
-  codeql(
-    'database', 'finalize',
-    '--threads', '1',
-    dbpath
-  )
-
-
 def debug(args):
   basedir = dirname(__file__)
   info('basedir: ' + basedir)
@@ -286,8 +275,6 @@ def debug(args):
     '--pack', modified_query_pack,
     inject_string
   ])
-
-  finalize_database(codeql, args.db_path)
 
   codeql(
     'database', 'run-queries',
