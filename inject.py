@@ -69,7 +69,7 @@ def set_pack_default_suite(packdir, default_suite):
 
 
 def list_packs(search_path):
-  for sd in search_path.split(':'):
+  for sd in search_path.split(os.pathsep):
     print('search-path-component: ' + sd)
     for qlpackyml in glob.iglob(join(sd, '**', 'qlpack.yml'), recursive=True):
       yield dirname(qlpackyml)

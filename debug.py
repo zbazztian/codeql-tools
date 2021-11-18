@@ -1,10 +1,10 @@
 import argparse
 import sys
 import glob
+import os
 from os.path import isfile, isdir, dirname, join, relpath, basename
 import subprocess
 import csv
-import os
 import shutil
 import re
 import hashlib
@@ -34,6 +34,10 @@ def change_ext(extfrom, extto, path):
 def remove(fpath):
   if isfile(fpath):
     os.remove(fpath)
+
+
+def is_db(dbpath):
+  return isfile(join(dbpath, 'codeql-database.yml'))
 
 
 def get_db_lang(codeql, dbpath):
@@ -228,38 +232,48 @@ def finalize_database(codeql, dbpath):
 
 
 def debug(args):
-  info(args.db_path)
-  info(args.codeql_path)
-  info(args.output_dir)
-  info(args.search_path)
-
   basedir = dirname(__file__)
   info('basedir: ' + basedir)
 
   if not isfile(args.codeql_path):
     error('Given path is not a CodeQL executable: ' + args.codeql_path)
+  info('codeql path: ' + args.codeql_path)
+  codeql = init_codeql(args.codeql_path)
 
-  if not isdir(args.db_path):
+  if not is_db(args.db_path):
     error('Given path is not a database: ' + args.db_path)
+  info('database : ' + args.db_path)
 
   if args.search_path is None:
     args.search_path = join(dirname(args.codeql_path), 'qlpacks')
+  info('search path: ' + args.search_path)
 
-  codeql = init_codeql(args.codeql_path)
+  lang = get_db_lang(codeql, args.db_path)
+  info('language: ' + lang)
+
+  info('output directory: ' + args.output_dir)
+  util.clear_dir(args.output_dir)
+
+  tmpdir = join(args.output_dir, 'tmp')
+  info('temp directory: ' + tmpdir)
+  util.clear_dir(tmpdir)
+
+  debug_pack = join(basedir, 'debug', lang + '-debug-pack')
+  info('debug pack at: ' + debug_pack)
+
+  info('testing codeql executable...')
   codeql('version')
   codeql('resolve', 'qlpacks')
 
-  util.clear_dir(args.output_dir)
-  tmpdir = join(args.output_dir, 'tmp')
-  util.clear_dir(tmpdir)
-  modified_query_pack = join(tmpdir, 'modified-pack')
-
-  lang = get_db_lang(codeql, args.db_path)
-  print('lang: ' + lang)
   pack = inject.find_standard_query_pack(args.search_path, lang)
-  debug_pack = join(basedir, 'debug', lang + '-debug-pack')
+  info('standard (unmodified) query pack found at: ' + pack)
+
+  modified_query_pack = join(tmpdir, 'modified-pack')
+  info('modified query pack to be created at: ' + modified_query_pack)
   shutil.copytree(pack, modified_query_pack)
-  args.search_path = join(basedir, 'debug') + ':' + tmpdir + ':' + args.search_path
+
+  args.search_path = join(basedir, 'debug') + os.pathsep + tmpdir + os.pathsep + args.search_path
+  info('search path to be used for codeql: ' + args.search_path)
   codeql = codeql_bind_search_path(codeql, args.search_path)
 
   inject_string = ''
