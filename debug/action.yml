@@ -17,9 +17,8 @@ runs:
   steps:
     - name: debug
       run: |
-        python3 \
-          "${{ github.action_path }}/../codeql-debug" \
-          --codeql-path "${{ inputs.codeql-path }}" \
-          --output-dir "${{ inputs.output-dir }}" \
-          "${{ inputs.database-path }}"
+        "${{ github.action_path }}/../codeql-debug" \
+        --codeql-path "${{ inputs.codeql-path }}" \
+        --output-dir "${{ inputs.output-dir }}" \
+        "${{ inputs.database-path }}"
       shell: bash
