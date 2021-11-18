@@ -33,11 +33,14 @@ jobs:
     - name: Autobuild
       uses: github/codeql-action/autobuild@v1
 
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v1
+
     - name: CodeQL Debug Report
       uses: zbazztian/codeql-tools/debug@main
       with:
         codeql-path: ${{ steps.codeqltoolchain.outputs.codeql-path }}
-        
+
     - name: Upload loc as a Build Artifact
       uses: actions/upload-artifact@v2.2.0
       with:
