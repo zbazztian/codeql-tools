@@ -5,15 +5,20 @@ inputs:
     description: 'Path of the CodeQL toolchain.'
     required: true
   database-path:
-    description: "Path to the CodeQL database for which to generate a report."
+    description: 'Path to the CodeQL database for which to generate a report.'
     required: true
+  output-dir:
+    description: 'Directory in which to output the debug report.'
+    required: false
+    default: 'codeql-debug-report'
 runs:
   using: "composite"
   steps:
     - name: debug
       run: |
         python3 \
-          "${{ github.action_path }}/action_impl.py" \
-          "${{ inputs.codeql-path }}" \
+          "${{ github.action_path }}/../codeql-debug" \
+          --codeql-path "${{ inputs.codeql-path }}" \
+          --output-dir "${{ inputs.output-dir }}" \
           "${{ inputs.database-path }}"
       shell: bash

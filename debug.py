@@ -13,7 +13,7 @@ from datetime import datetime
 import inject
 import json
 import util
-from util import error
+from util import error, warning, info
 
 
 ExternalAPIWithUntrustedDataCountsQueries = {
@@ -217,10 +217,13 @@ def get_external_api_with_untrusted_data_counts(codeql, lang, pack, dbpath):
 
 
 def debug(args):
-  print(args.db_path)
-  print(args.codeql_path)
-  print(args.output_dir)
-  print(args.search_path)
+  info(args.db_path)
+  info(args.codeql_path)
+  info(args.output_dir)
+  info(args.search_path)
+
+  basedir = dirname(__file__)
+  info('basedir: ' + basedir)
 
   if not isfile(args.codeql_path):
     error('Given path is not a CodeQL executable: ' + args.codeql_path)
@@ -242,9 +245,9 @@ def debug(args):
 
   lang = get_db_lang(codeql, args.db_path)
   pack = inject.find_standard_query_pack(args.search_path, lang)
-  debug_pack = join('debug', lang + '-debug-pack')
+  debug_pack = join(basedir, 'debug', lang + '-debug-pack')
   shutil.copytree(pack, modified_query_pack)
-  args.search_path = 'debug' + ':' + tmpdir + ':' + args.search_path
+  args.search_path = join(basedir, 'debug') + ':' + tmpdir + ':' + args.search_path
   codeql = codeql_bind_search_path(codeql, args.search_path)
 
   inject_string = ''
@@ -262,7 +265,7 @@ def debug(args):
     'database', 'run-queries',
     '--threads', '0',
     args.db_path,
-    'debug/javascript-debug-pack/default.qls'
+    join(debug_pack, 'default.qls')
   )
 
   query_source_sink_counts = sorted(
