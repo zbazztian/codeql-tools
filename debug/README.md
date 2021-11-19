@@ -14,7 +14,7 @@ This action extracts such information and generates an html report.
 
 # Setup
 
-To get such a report for your database, you have to add the action to your workflow as well as upload the output. Make sure you add the action _after_ you have run the `github/codeql-action/analyze` action, like so:
+To get such a report for your database, you have to add the action to your workflow as well as upload the output. Make sure you add the action _after_ the `github/codeql-action/analyze` action, like so:
 
 ```yaml
 name: "CodeQL Debug Report Test"
