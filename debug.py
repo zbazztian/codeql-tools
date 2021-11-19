@@ -104,14 +104,16 @@ def codeql_bind_search_path(codeql, search_path):
 
 
 def read_bqrs(codeql, bqrs_path, resultset='#select', entities='url'):
-  output = re.split('\r?\n', codeql(
-    'bqrs', 'decode',
-    '--format', 'csv',
-    '--no-titles',
-    '--result-set', resultset,
-    '--entities', entities,
-    bqrs_path
-  ))
+  output = re.split(
+    '\r?\n', codeql(
+      'bqrs', 'decode',
+      '--format', 'csv',
+      '--no-titles',
+      '--result-set', resultset,
+      '--entities', entities,
+      bqrs_path
+    )
+  )
 
   for row in csv.reader(o for o in output if o):
     yield row
@@ -297,7 +299,8 @@ def debug(args):
     distros = list(find_codeql_distros(args.codeql_path))
     if not distros:
       error('Could not find any codeql distributions under "' + args.codeql_path + '"!')
-    warning('Found multiple distributions:' + os.linesep + os.linesep.join(distros))
+    elif len(distros) > 1:
+      warning('Found multiple distributions. Selecting first one of:' + os.linesep + os.linesep.join(distros))
     args.codeql_path = join(distros[0], codeql_executable_name())
   if not isfile(args.codeql_path):
     error('Given path is not a CodeQL executable: ' + args.codeql_path)
