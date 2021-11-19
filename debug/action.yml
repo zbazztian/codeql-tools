@@ -25,6 +25,8 @@ runs:
   using: "composite"
   steps:
     - name: debug
+      env:
+        GITHUB_CONTEXT: ${{ toJson(github) }}
       run: |
         "${{ github.action_path }}/../codeql-debug" \
         --codeql-path "${{ inputs.codeql-path }}" \
