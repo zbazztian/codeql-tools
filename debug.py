@@ -822,7 +822,6 @@ def report(db_path, codeql, output_dir, search_path, ram, threads):
 
 
 def main(args):
-  print(get_github_actions_info())
   parser = argparse.ArgumentParser(
     prog='debug'
   )
