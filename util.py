@@ -33,16 +33,16 @@ def system_info():
 
 
 def error(msg):
-  print('ERROR: ' + str(msg))
+  print('ERROR: ' + str(msg), flush=True)
   sys.exit(1)
 
 
 def info(msg):
-  print('INFO: ' + str(msg))
+  print('INFO: ' + str(msg), flush=True)
 
 
 def warning(msg):
-  print('WARNING: ' + str(msg))
+  print('WARNING: ' + str(msg), flush=True)
 
 
 def clear_dir(dirpath):
