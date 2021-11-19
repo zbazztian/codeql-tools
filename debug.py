@@ -292,14 +292,12 @@ def supported_languages():
 
 
 def get_github_actions_info():
-  j = json.loads(os.environ.get('GITHUB_CONTEXT', None))
-  if j is None:
-    return {}
-  return {
-    'url': j['event']['repository']['url'],
-    'workspace': j['workspace'],
-    'workflow': j['workflow']
-  }
+  results = {}
+  server_url = os.environ.get('GITHUB_SERVER_URL', None)
+  repository = os.environ.get('GITHUB_REPOSITORY', None)
+  if server_url and repository:
+    results['url'] = server_url + '/' + repository
+  return results
 
 
 def debug(args):
@@ -401,16 +399,6 @@ def report(db_path, codeql, output_dir, search_path, ram, threads):
   dependencies = get_dependencies(codeql, debug_pack, db_path)
 
   github_actions_info = get_github_actions_info()
-  if github_actions_info:
-    util.copy(
-      join(github_actions_info['workspace'], github_actions_info['workflow']),
-      join(db_output_dir, 'workflow.txt')
-    )
-    github_actions_info['workflow'] = html_tag(
-      'a',
-      github_actions_info['workflow'],
-      {'href': join(dbname, 'workflow.txt')}
-    )
 
   with open(join(output_dir, dbname + '.html'), 'w') as f:
     f.write('<html>\n<body>\n')
@@ -834,6 +822,7 @@ def report(db_path, codeql, output_dir, search_path, ram, threads):
 
 
 def main(args):
+  print(get_github_actions_info())
   parser = argparse.ArgumentParser(
     prog='debug'
   )
