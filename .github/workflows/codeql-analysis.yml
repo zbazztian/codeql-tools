@@ -40,9 +40,6 @@ jobs:
 
     - name: CodeQL Debug Report
       uses: zbazztian/codeql-tools/debug@main
-      with:
-        database-path: "${{ runner.temp }}/codeql_databases/${{ matrix.language }}"
-        #codeql-path: "${{ steps.codeqltoolchain.outputs.codeql-path }}"
 
     - name: Upload loc as a Build Artifact
       uses: actions/upload-artifact@v2.2.0

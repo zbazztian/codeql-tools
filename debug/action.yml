@@ -8,7 +8,7 @@ inputs:
   database-path:
     description: 'Path to the CodeQL database for which to generate a report.'
     required: false
-    default: "${{ runner.temp }}/codeql_databases/${{ matrix.language }}"
+    default: "${{ runner.temp }}/codeql_databases/"
   output-dir:
     description: 'Directory in which to output the debug report.'
     required: false
