@@ -25,7 +25,6 @@ ExternalAPIWithUntrustedDataCountsQueries = {
   'python': 'Security/CWE-020-ExternalAPIs/ExternalAPIsUsedWithUntrustedData.ql'
 }
 
-DB_LANG_PATTERN = re.compile('^(primaryLanguage:\s+")(\S+)"(.*)$', re.MULTILINE)
 
 
 def change_ext(extfrom, extto, path):
@@ -41,15 +40,21 @@ def is_db(dbpath):
   return isfile(join(dbpath, 'codeql-database.yml'))
 
 
-def get_db_lang(codeql, dbpath):
-  j = json.loads(
-    codeql(
-      'resolve', 'database',
-      '--format', 'json',
-      dbpath
-    )
-  )
-  return j['languages'][0]
+def get_db_lang(dbpath):
+  DB_LANG_PATTERN = re.compile('^(primaryLanguage:\s+")(\S+)"(.*)$', re.MULTILINE)
+  dbyml = join(dbpath, 'codeql-database.yml')
+  contents = util.read_file(dbyml)
+  match = DB_LANG_PATTERN.search(contents)
+  lang = None
+  if not match:
+    for f in os.listdir(dbpath):
+      if isdir(join(dbpath, f)) and f[0:3] == 'db-':
+        if not lang is None:
+          raise Exception('Database "' + dbpath + '" appears to have multiple languages. Unable to determine primary one!')
+        return f[3:]
+    raise Exception('Unable to determine language of database "' + dbpath + '"!')
+  else:
+    return match.group(2)
 
 
 def init_codeql(codeql_path):
@@ -149,14 +154,28 @@ def resolve_queries(codeql, qls):
       yield q
 
 
-def query_metadata(codeql, qlfile):
-  return json.loads(
-    codeql(
-      'resolve', 'metadata',
-      '--format', 'json',
-      qlfile
-    )
-  )
+def query_metadata(qlfile):
+  PATTERN_METADATA = re.compile('^\s*/\*\*(.*?)\*/.*$', flags=re.DOTALL)
+  PATTERN_LEADING_STAR = re.compile('^\s*\*?\s*', flags=re.MULTILINE)
+  PATTERN_METADATA_LINE = re.compile('^@(\S+)\s+(.*?)(?=(@|\Z))', flags=re.MULTILINE|re.DOTALL)
+
+  result = {}
+
+  # extract metadata section
+  qlcontents = util.read_file(qlfile)
+  m = PATTERN_METADATA.match(qlcontents)
+  if not m:
+    return result
+  metadata_section = m.group(1)
+
+  # remove leading ' * ' from metadata section
+  metadata_section = PATTERN_LEADING_STAR.sub('', metadata_section)
+
+  # extract metadata lines
+  for ml in PATTERN_METADATA_LINE.findall(metadata_section):
+    result[ml[0]] = ml[1].rstrip()
+
+  return result
 
 
 def html_tag(tag, value, attributes = {}):
@@ -204,7 +223,7 @@ def get_query_source_sink_counts(codeql, debug_pack, dbpath):
   result = []
   for ql in resolve_queries(codeql, join(debug_pack, 'source_sink_queries.qls')):
     bqrsf = get_bqrs(ql, dbpath)
-    metadata = query_metadata(codeql, ql)
+    metadata = query_metadata(ql)
     for r in read_bqrs(codeql, bqrsf, 'source_and_sink_counts'):
       result.append([metadata['id'] + ': ' + r[0], r[1], r[2]])
 
@@ -249,25 +268,46 @@ def find_codeql_distros(directory):
       yield candidate_distro
 
 
+def ls_dbs(directory):
+  if isdir(directory):
+    if is_db(directory):
+      yield directory
+    else:
+      for f in os.listdir(directory):
+        candidate = join(directory, f)
+        if is_db(candidate):
+          yield candidate
+
+
+def basedir():
+  return dirname(__file__)
+
+
+def supported_languages():
+  return [
+    'javascript'
+  ]
+
+
 def debug(args):
-  basedir = dirname(__file__)
-  info('basedir: ' + basedir)
+  info('basedir: ' + basedir())
 
   if isdir(args.codeql_path):
     info('Attempting to find codeql distributions under given directory "' + args.codeql_path + '"...')
     distros = list(find_codeql_distros(args.codeql_path))
     if not distros:
       error('Could not find any codeql distributions under "' + args.codeql_path + '"!')
-    info('Found the following distributions: ' + os.linesep.join(distros))
+    info('Found the following distributions:' + os.linesep + os.linesep.join(distros))
     args.codeql_path = join(distros[0], codeql_executable_name())
   if not isfile(args.codeql_path):
     error('Given path is not a CodeQL executable: ' + args.codeql_path)
   info('codeql path: ' + args.codeql_path)
   codeql = init_codeql(args.codeql_path)
 
-  if not is_db(args.db_path):
-    error('Given path is not a database: ' + args.db_path)
-  info('database : ' + args.db_path)
+  dbs = [db for db in ls_dbs(args.db_path) if get_db_lang(db) in supported_languages()]
+  if not dbs:
+    error('No databases with supported languages found under "' + args.db_path + '"!')
+  info('Databases to be debugged:' + os.linesep + os.linesep.join(dbs))
 
   if args.search_path is None:
     args.search_path = join(dirname(args.codeql_path), 'qlpacks')
@@ -280,26 +320,38 @@ def debug(args):
   codeql('version')
   codeql('resolve', 'qlpacks')
 
-  lang = get_db_lang(codeql, args.db_path)
+  for db in dbs:
+    report(
+      db,
+      codeql,
+      args.output_dir,
+      args.search_path,
+      args.ram,
+      args.threads
+    )
+
+
+def report(db_path, codeql, output_dir, search_path, ram, threads):
+  lang = get_db_lang(db_path)
   info('language: ' + lang)
 
-  tmpdir = join(args.output_dir, 'tmp')
+  tmpdir = join(output_dir, 'tmp')
   info('temp directory: ' + tmpdir)
   util.clear_dir(tmpdir)
 
-  debug_pack = join(basedir, 'debug', lang + '-debug-pack')
+  debug_pack = join(basedir(), 'debug', lang + '-debug-pack')
   info('debug pack at: ' + debug_pack)
 
-  pack = inject.find_standard_query_pack(args.search_path, lang)
+  pack = inject.find_standard_query_pack(search_path, lang)
   info('standard (unmodified) query pack found at: ' + pack)
 
   modified_query_pack = join(tmpdir, 'modified-pack')
   info('modified query pack to be created at: ' + modified_query_pack)
   shutil.copytree(pack, modified_query_pack)
 
-  args.search_path = join(basedir, 'debug') + os.pathsep + tmpdir + os.pathsep + args.search_path
-  info('search path to be used for codeql: ' + args.search_path)
-  codeql = codeql_bind_search_path(codeql, args.search_path)
+  search_path = join(basedir(), 'debug') + os.pathsep + tmpdir + os.pathsep + search_path
+  info('search path to be used for codeql: ' + search_path)
+  codeql = codeql_bind_search_path(codeql, search_path)
 
   inject_string = ''
   for q in resolve_queries(codeql, join(debug_pack, 'source_sink_queries.qls')):
@@ -314,23 +366,23 @@ def debug(args):
 
   analysis_params = [
     'database', 'run-queries',
-  ] + (['--ram', args.ram] if args.ram != '0' else []) + [
-    '--threads', args.threads,
-    args.db_path,
+  ] + (['--ram', ram] if ram != '0' else []) + [
+    '--threads', threads,
+    db_path,
     join(debug_pack, 'default.qls')
   ]
   codeql(*analysis_params)
 
   query_source_sink_counts = sorted(
-    get_query_source_sink_counts(codeql, debug_pack, args.db_path),
+    get_query_source_sink_counts(codeql, debug_pack, db_path),
     key=lambda el: el[0]
   )
 
-  externalAPIWithUntrustedDataCounts = get_external_api_with_untrusted_data_counts(codeql, lang, modified_query_pack, args.db_path)
+  externalAPIWithUntrustedDataCounts = get_external_api_with_untrusted_data_counts(codeql, lang, modified_query_pack, db_path)
 
-  dependencies = get_dependencies(codeql, debug_pack, args.db_path)
+  dependencies = get_dependencies(codeql, debug_pack, db_path)
 
-  with open(join(args.output_dir, 'index.html'), 'w') as f:
+  with open(join(output_dir, basename(db_path) + '.html'), 'w') as f:
     f.write('<html>\n<body>\n')
 
     # system information
