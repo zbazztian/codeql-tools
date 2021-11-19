@@ -834,6 +834,7 @@ def report(db_path, codeql, output_dir, search_path, ram, threads):
 
 
 def main(args):
+  print(os.environ.get('GITHUB_CONTEXT'))
   parser = argparse.ArgumentParser(
     prog='debug'
   )
