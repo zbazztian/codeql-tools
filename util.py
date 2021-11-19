@@ -3,7 +3,7 @@ import sys
 import multiprocessing
 import shutil
 import os
-from os.path import dirname
+from os.path import dirname, isfile, isdir, exists
 import hashlib
 
 
@@ -65,3 +65,14 @@ def read_file(fpath):
 def write_file(fpath, contents):
   with open(fpath, 'w') as f:
     f.write(contents)
+
+
+# copy a file and make sure that the destination
+# path exists (all directories)
+def copy(src, dest):
+  if exists(src):
+    os.makedirs(dirname(dest), exist_ok=True)
+    if isfile(src):
+      shutil.copyfile(src, dest)
+    elif isdir(src):
+      shutil.copytree(src, dest)

@@ -291,6 +291,17 @@ def supported_languages():
   ]
 
 
+def get_github_actions_info():
+  j = json.loads(os.environ.get('GITHUB_CONTEXT', None))
+  if j is None:
+    return {}
+  return {
+    'url': j['event']['repository']['url'],
+    'workspace': j['workspace'],
+    'workflow': j['workflow']
+  }
+
+
 def debug(args):
   info('basedir: ' + basedir())
 
@@ -335,6 +346,9 @@ def debug(args):
 
 
 def report(db_path, codeql, output_dir, search_path, ram, threads):
+  dbname = basename(db_path)
+  db_output_dir = join(output_dir, dbname)
+
   lang = get_db_lang(db_path)
   info('language: ' + lang)
 
@@ -350,7 +364,7 @@ def report(db_path, codeql, output_dir, search_path, ram, threads):
 
   modified_query_pack = join(tmpdir, 'modified-pack')
   info('modified query pack to be created at: ' + modified_query_pack)
-  shutil.copytree(pack, modified_query_pack)
+  util.copy(pack, modified_query_pack)
 
   search_path = join(basedir(), 'debug') + os.pathsep + tmpdir + os.pathsep + search_path
   info('search path to be used for codeql: ' + search_path)
@@ -380,12 +394,25 @@ def report(db_path, codeql, output_dir, search_path, ram, threads):
     get_query_source_sink_counts(codeql, debug_pack, db_path),
     key=lambda el: el[0]
   )
+  query_source_sink_counts = []
 
   externalAPIWithUntrustedDataCounts = get_external_api_with_untrusted_data_counts(codeql, lang, modified_query_pack, db_path)
 
   dependencies = get_dependencies(codeql, debug_pack, db_path)
 
-  with open(join(output_dir, basename(db_path) + '.html'), 'w') as f:
+  github_actions_info = get_github_actions_info()
+  if github_actions_info:
+    util.copy(
+      join(github_actions_info['workspace'], github_actions_info['workflow']),
+      join(db_output_dir, 'workflow.txt')
+    )
+    github_actions_info['workflow'] = html_tag(
+      'a',
+      github_actions_info['workflow'],
+      {'href': join(dbname, 'workflow.txt')}
+    )
+
+  with open(join(output_dir, dbname + '.html'), 'w') as f:
     f.write('<html>\n<body>\n')
 
     # system information
@@ -394,6 +421,14 @@ def report(db_path, codeql, output_dir, search_path, ram, threads):
       html_table(
         ['component', 'information'],
         util.system_info()
+      )
+    )
+
+    f.write(h1('GitHub Actions context information'))
+    f.write(
+      html_table(
+        ['key', 'value'],
+        list(github_actions_info.items())
       )
     )
 
@@ -424,7 +459,6 @@ def report(db_path, codeql, output_dir, search_path, ram, threads):
     )
 
     f.write('</body></html>\n')
-
 
 
   # clean tmp directory
