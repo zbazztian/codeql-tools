@@ -293,15 +293,15 @@ def debug(args):
   info('basedir: ' + basedir())
 
   if isdir(args.codeql_path):
-    info('Attempting to find codeql distributions under given directory "' + args.codeql_path + '"...')
+    info('Attempting to find a codeql distribution under given directory "' + args.codeql_path + '"...')
     distros = list(find_codeql_distros(args.codeql_path))
     if not distros:
       error('Could not find any codeql distributions under "' + args.codeql_path + '"!')
-    info('Found the following distributions:' + os.linesep + os.linesep.join(distros))
+    warning('Found multiple distributions:' + os.linesep + os.linesep.join(distros))
     args.codeql_path = join(distros[0], codeql_executable_name())
   if not isfile(args.codeql_path):
     error('Given path is not a CodeQL executable: ' + args.codeql_path)
-  info('codeql path: ' + args.codeql_path)
+  info('codeql executable to be used: ' + args.codeql_path)
   codeql = init_codeql(args.codeql_path)
 
   dbs = [db for db in ls_dbs(args.db_path) if get_db_lang(db) in supported_languages()]
