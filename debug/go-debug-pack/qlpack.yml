@@ -1,0 +1,6 @@
+name: go-debug-pack
+version: 1.0.0
+defaultSuiteFile: default.qls
+dependencies:
+  codeql/go-queries: "*"
+libraryPathDependencies: codeql/go-all

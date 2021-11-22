@@ -22,10 +22,6 @@ jobs:
 
     steps:
 
-    - uses: actions/setup-go@v2
-      with:
-        go-version: '1.16.0'
-
     - name: Checkout repository
       uses: actions/checkout@v2
 
@@ -39,6 +35,11 @@ jobs:
       if: ${{ matrix.language == 'java' }}
       run: |
         mvn clean package -DskipTests -f test-projects/acio/pom.xml
+
+    - uses: actions/setup-go@v2
+      if: ${{ matrix.language == 'go' }}
+      with:
+        go-version: '1.16.0'
 
     - name: manual build command for Go
       if: ${{ matrix.language == 'go' }}
