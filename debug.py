@@ -16,15 +16,6 @@ import json
 import util
 from util import error, warning, info
 
-ExternalAPIWithUntrustedDataCountsQueries = {
-  'cpp': 'Security/CWE/CWE-020/CountUntrustedDataToExternalAPI.ql',
-  'csharp': 'Security Features/CWE-020/ExternalAPIsUsedWithUntrustedData.ql',
-  'java': 'Security/CWE/CWE-020/ExternalAPIsUsedWithUntrustedData.ql',
-  'javascript': 'Security/CWE-020/ExternalAPIsUsedWithUntrustedData.ql',
-  'python': 'Security/CWE-020-ExternalAPIs/ExternalAPIsUsedWithUntrustedData.ql'
-}
-
-
 
 def change_ext(extfrom, extto, path):
   return re.sub(re.escape(extfrom) + '$', extto, path)
@@ -231,10 +222,9 @@ def get_query_source_sink_counts(codeql, debug_pack, dbpath):
   return result
 
 
-def get_external_api_with_untrusted_data_counts(codeql, lang, pack, dbpath):
+def get_external_api_with_untrusted_data_counts(codeql, debug_pack, dbpath):
   result = []
-  if lang in ExternalAPIWithUntrustedDataCountsQueries:
-    ql = join(pack, ExternalAPIWithUntrustedDataCountsQueries[lang])
+  for ql in resolve_queries(codeql, join(debug_pack, 'untrusted_data_count_query.qls')):
     bqrs = get_bqrs(ql, dbpath)
     for r in read_bqrs(codeql, bqrs, '#select', 'string'):
       result.append(r)
@@ -393,7 +383,7 @@ def report(db_path, codeql, output_dir, search_path, ram, threads):
     key=lambda el: el[0]
   )
 
-  externalAPIWithUntrustedDataCounts = get_external_api_with_untrusted_data_counts(codeql, lang, modified_query_pack, db_path)
+  externalAPIWithUntrustedDataCounts = get_external_api_with_untrusted_data_counts(codeql, debug_pack, db_path)
 
   dependencies = get_dependencies(codeql, debug_pack, db_path)
 
