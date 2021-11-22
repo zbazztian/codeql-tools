@@ -31,6 +31,6 @@ runs:
         --output-dir "${{ inputs.output-dir }}" \
         --threads "${{ inputs.threads }}" \
         --ram  "${{ inputs.ram }}" \
-        --repo-url "${{ github.server_url }}/${{ github.repository }}"
+        --repo-url "${{ github.server_url }}/${{ github.repository }}" \
         "${{ inputs.database-path }}"
       shell: bash
