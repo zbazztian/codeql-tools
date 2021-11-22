@@ -1,0 +1,2 @@
+- query: Security/CWE/CWE-020/ExternalAPIsUsedWithUntrustedData.ql
+  from: codeql/java-queries

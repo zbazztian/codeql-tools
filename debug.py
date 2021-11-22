@@ -16,7 +16,6 @@ import json
 import util
 from util import error, warning, info
 
-
 ExternalAPIWithUntrustedDataCountsQueries = {
   'cpp': 'Security/CWE/CWE-020/CountUntrustedDataToExternalAPI.ql',
   'csharp': 'Security Features/CWE-020/ExternalAPIsUsedWithUntrustedData.ql',
