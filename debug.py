@@ -281,15 +281,6 @@ def supported_languages():
   ]
 
 
-def get_github_actions_info():
-  results = {}
-  server_url = os.environ.get('GITHUB_SERVER_URL', None)
-  repository = os.environ.get('GITHUB_REPOSITORY', None)
-  if server_url and repository:
-    results['url'] = server_url + '/' + repository
-  return results
-
-
 def debug(args):
   info('basedir: ' + basedir())
 
@@ -329,11 +320,12 @@ def debug(args):
       args.output_dir,
       args.search_path,
       args.ram,
-      args.threads
+      args.threads,
+      args.repo_url
     )
 
 
-def report(db_path, codeql, output_dir, search_path, ram, threads):
+def report(db_path, codeql, output_dir, search_path, ram, threads, repo_url):
   dbname = basename(db_path)
   db_output_dir = join(output_dir, dbname)
 
@@ -387,8 +379,6 @@ def report(db_path, codeql, output_dir, search_path, ram, threads):
 
   dependencies = get_dependencies(codeql, debug_pack, db_path)
 
-  github_actions_info = get_github_actions_info()
-
   with open(join(output_dir, dbname + '.html'), 'w') as f:
     f.write('<html>\n<body>\n')
 
@@ -401,11 +391,11 @@ def report(db_path, codeql, output_dir, search_path, ram, threads):
       )
     )
 
-    f.write(h1('GitHub Actions context information'))
+    f.write(h1('Repository information'))
     f.write(
       html_table(
         ['key', 'value'],
-        list(github_actions_info.items())
+        [['url', repo_url if repo_url else 'unspecified']]
       )
     )
 
@@ -843,10 +833,10 @@ def main(args):
     default='0'
   )
   parser.add_argument(
-    '--github-url',
-    help='RAM used for the analysis',
+    '--repo-url',
+    help='Https repository url',
     required=False,
-    default='0'
+    default=None
   )
   parser.add_argument(
     'db_path',
