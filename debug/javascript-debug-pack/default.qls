@@ -1,6 +1,5 @@
 - import: source_sink_queries.qls
 - query: dependencies.ql
-- query: Security/CWE-020/ExternalAPIsUsedWithUntrustedData.ql
-  from: codeql/javascript-queries
+- import untrusted_data_count_queries.qls
 - query: Security/CWE-020/UntrustedDataToExternalAPI.ql
   from: codeql/javascript-queries

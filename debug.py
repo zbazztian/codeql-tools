@@ -392,7 +392,6 @@ def report(db_path, codeql, output_dir, search_path, ram, threads):
     get_query_source_sink_counts(codeql, debug_pack, db_path),
     key=lambda el: el[0]
   )
-  query_source_sink_counts = []
 
   externalAPIWithUntrustedDataCounts = get_external_api_with_untrusted_data_counts(codeql, lang, modified_query_pack, db_path)
 
