@@ -1,0 +1,6 @@
+name: java-debug-pack
+version: 1.0.0
+defaultSuiteFile: default.qls
+dependencies:
+  codeql/java-queries: "*"
+libraryPathDependencies: codeql/java-all
