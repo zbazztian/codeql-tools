@@ -287,7 +287,8 @@ def basedir():
 
 def supported_languages():
   return [
-    'javascript'
+    'javascript',
+    'java'
   ]
 
 
