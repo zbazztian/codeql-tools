@@ -35,8 +35,14 @@ jobs:
       run: |
         mvn clean package -DskipTests -f test-projects/acio/pom.xml
 
+    - name: manual build command for Go
+      if: ${{ matrix.language == 'go' }}
+      run: |
+        cd test-projects/syncthing/
+        go run build.go
+
     - name: Autobuild
-      if: ${{ matrix.language == 'javascript' || matrix.language == 'go' }}
+      if: ${{ matrix.language == 'javascript' }}
       uses: github/codeql-action/autobuild@v1
 
     - name: Perform CodeQL Analysis
