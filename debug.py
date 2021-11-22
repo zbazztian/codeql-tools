@@ -843,6 +843,12 @@ def main(args):
     default='0'
   )
   parser.add_argument(
+    '--github-url',
+    help='RAM used for the analysis',
+    required=False,
+    default='0'
+  )
+  parser.add_argument(
     'db_path',
     help='Path to the CodeQL database'
   )
