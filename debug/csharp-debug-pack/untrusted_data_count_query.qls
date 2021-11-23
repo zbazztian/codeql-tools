@@ -1,0 +1,2 @@
+- query: Security Features/CWE-020/ExternalAPIsUsedWithUntrustedData.ql
+  from: codeql/csharp-queries

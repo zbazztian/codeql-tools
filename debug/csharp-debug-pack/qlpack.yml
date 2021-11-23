@@ -1,0 +1,6 @@
+name: csharp-debug-pack
+version: 1.0.0
+defaultSuiteFile: default.qls
+dependencies:
+  codeql/csharp-queries: "*"
+libraryPathDependencies: codeql/csharp-all
