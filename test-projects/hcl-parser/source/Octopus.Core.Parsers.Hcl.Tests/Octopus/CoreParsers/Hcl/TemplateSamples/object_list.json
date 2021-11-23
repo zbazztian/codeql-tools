@@ -1,0 +1,17 @@
+{
+    "resource": {
+        "aws_instance": {
+            "db": {
+                "vpc": "foo",
+                "provisioner": [
+                    {
+                        "file": {
+                            "source": "foo",
+                            "destination": "bar"
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}
