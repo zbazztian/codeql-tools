@@ -278,7 +278,8 @@ def supported_languages():
   return [
     'javascript',
     'java',
-    'go'
+    'go',
+    'csharp'
   ]
 
 

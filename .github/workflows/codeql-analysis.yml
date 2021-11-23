@@ -18,7 +18,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: [ 'javascript', 'java', 'go' ]
+        language: [ 'javascript', 'java', 'go', 'csharp' ]
 
     steps:
 
@@ -46,6 +46,13 @@ jobs:
       run: |
         cd test-projects/syncthing/
         go run build.go
+
+    - name: manual build command for C#
+      if: ${{ matrix.language == 'csharp' }}
+      run: |
+        dotnet clean test-projects/hcl-parser/source/Octopus.CoreParsers.Hcl.sln
+        dotnet restore test-projects/hcl-parser/source/Octopus.CoreParsers.Hcl.sln
+        dotnet build --no-incremental /p:UseSharedCompilation=false test-projects/hcl-parser/source/Octopus.CoreParsers.Hcl.sln
 
     - name: Autobuild
       if: ${{ matrix.language == 'javascript' }}
