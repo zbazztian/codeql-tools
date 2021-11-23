@@ -1,5 +1,5 @@
 - import: codeql-suites/go-code-scanning.qls
-  from: codeql-go              # query pack is based on the original one
+  from: codeql/go-queries       # query pack is based on the original one
 - exclude:
     kind:
       - problem

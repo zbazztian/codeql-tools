@@ -2,4 +2,4 @@
 - query: dependencies.ql
 - import: untrusted_data_count_query.qls
 - query: Security/CWE-020/UntrustedDataToExternalAPI.ql
-  from: codeql-go
+  from: codeql/go-queries

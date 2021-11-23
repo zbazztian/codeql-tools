@@ -1,2 +1,2 @@
 - query: Security/CWE-020/ExternalAPIsUsedWithUntrustedData.ql
-  from: codeql-go
+  from: codeql/go-queries

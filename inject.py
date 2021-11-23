@@ -75,15 +75,9 @@ def list_packs(search_path):
 
 
 def find_standard_query_pack(search_path, lang):
-  def make_name(lang):
-    if lang == 'go':
-      return 'codeql-go'
-    else:
-      return 'codeql/' + lang + '-queries'
-
   for p in list_packs(search_path):
     name, _ = get_pack_info(p)
-    if name == make_name(lang):
+    if name == 'codeql/' + lang + '-queries':
       return p
   raise Exception('Query pack for language {lang} not found!'.format(lang=lang))
 
