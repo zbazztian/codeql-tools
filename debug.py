@@ -338,7 +338,7 @@ def debug(args):
 
 
 def report(db_path, codeql, output_dir, search_path, ram, threads, repo_url):
-  dbname = basename(db_path)
+  dbname = basename(db_path.rstrip(os.sep))
   db_output_dir = join(output_dir, dbname)
 
   lang = get_db_lang(db_path)
@@ -373,14 +373,14 @@ def report(db_path, codeql, output_dir, search_path, ram, threads, repo_url):
     inject_string
   ])
 
-  analysis_params = [
-    'database', 'run-queries',
-  ] + (['--ram', ram] if ram != '0' else []) + [
-    '--threads', threads,
-    db_path,
-    join(debug_pack, 'default.qls')
-  ]
-  codeql(*analysis_params)
+#  analysis_params = [
+#    'database', 'run-queries',
+#  ] + (['--ram', ram] if ram != '0' else []) + [
+#    '--threads', threads,
+#    db_path,
+#    join(debug_pack, 'default.qls')
+#  ]
+#  codeql(*analysis_params)
 
   query_source_sink_counts = sorted(
     get_query_source_sink_counts(codeql, debug_pack, db_path),
@@ -417,7 +417,7 @@ def report(db_path, codeql, output_dir, search_path, ram, threads, repo_url):
     f.write(
       html_table(
         ['key', 'value'],
-        loc
+        [['language', lang]] + loc
       )
     )
 
