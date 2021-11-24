@@ -373,14 +373,14 @@ def report(db_path, codeql, output_dir, search_path, ram, threads, repo_url):
     inject_string
   ])
 
-#  analysis_params = [
-#    'database', 'run-queries',
-#  ] + (['--ram', ram] if ram != '0' else []) + [
-#    '--threads', threads,
-#    db_path,
-#    join(debug_pack, 'default.qls')
-#  ]
-#  codeql(*analysis_params)
+  analysis_params = [
+    'database', 'run-queries',
+  ] + (['--ram', ram] if ram != '0' else []) + [
+    '--threads', threads,
+    db_path,
+    join(debug_pack, 'default.qls')
+  ]
+  codeql(*analysis_params)
 
   query_source_sink_counts = sorted(
     get_query_source_sink_counts(codeql, debug_pack, db_path),
