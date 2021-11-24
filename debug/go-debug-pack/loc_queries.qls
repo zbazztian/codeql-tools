@@ -1,0 +1,2 @@
+- query: Summary/LinesOfCode.ql
+  from: codeql/go-queries

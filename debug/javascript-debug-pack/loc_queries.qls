@@ -1,0 +1,4 @@
+- query: Summary/LinesOfCode.ql
+  from: codeql/javascript-queries
+- query: Summary/LinesOfUserCode.ql
+  from: codeql/javascript-queries

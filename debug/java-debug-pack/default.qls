@@ -1,3 +1,4 @@
+- import: loc_queries.qls
 - import: source_sink_queries.qls
 - import: untrusted_data_count_query.qls
 - query: dependencies.ql

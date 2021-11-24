@@ -1,0 +1,2 @@
+- query: Metrics/Summaries/LinesOfCode.ql
+  from: codeql/csharp-queries

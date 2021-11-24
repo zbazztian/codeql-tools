@@ -1,0 +1,4 @@
+- query: Summary/LinesOfCode.ql
+  from: codeql/python-queries
+- query: Summary/LinesOfUserCode.ql
+  from: codeql/python-queries
