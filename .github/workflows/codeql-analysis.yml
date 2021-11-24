@@ -56,7 +56,7 @@ jobs:
         dotnet build --no-incremental /p:UseSharedCompilation=false test-projects/hcl-parser/source/Octopus.CoreParsers.Hcl.sln
 
     - name: Autobuild
-      if: ${{ matrix.language == 'javascript' }}
+      if: ${{ matrix.language == 'javascript' || matrix.language == 'python' }}
       uses: github/codeql-action/autobuild@v1
 
     - name: Perform CodeQL Analysis
