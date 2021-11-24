@@ -19,7 +19,7 @@ jobs:
       fail-fast: false
       matrix:
         #language: [ 'javascript', 'java', 'go', 'csharp', 'python' ]
-        language: [ 'python' ]
+        language: [ 'python', 'javascript' ]
 
     steps:
 
