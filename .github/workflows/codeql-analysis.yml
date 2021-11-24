@@ -30,6 +30,7 @@ jobs:
       id:   codeqltoolchain
       uses: github/codeql-action/init@v1
       with:
+        config-file: ".github/codeql-config-${{ matrix.language }}.yml"
         languages: ${{ matrix.language }}
 
     - name: manual build command for Java
@@ -62,7 +63,6 @@ jobs:
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v1
       with:
-        config-file: ".github/codeql-config-${{ matrix.language }}.yml"
         skip-queries: true
 
     - name: CodeQL Debug Report
