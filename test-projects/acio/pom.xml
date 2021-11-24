@@ -208,8 +208,8 @@
   </dependencies>
 
   <properties>
-    <maven.compile.source>1.5</maven.compile.source>
-    <maven.compile.target>1.5</maven.compile.target>
+    <maven.compile.source>1.6</maven.compile.source>
+    <maven.compile.target>1.6</maven.compile.target>
     <commons.componentid>io</commons.componentid>
     <commons.release.version>2.0</commons.release.version>
     <commons.release.desc>(requires JDK 1.5+)</commons.release.desc>
