@@ -1,0 +1,2 @@
+- query: Security/CWE-020-ExternalAPIs/ExternalAPIsUsedWithUntrustedData.ql
+  from: codeql/python-queries

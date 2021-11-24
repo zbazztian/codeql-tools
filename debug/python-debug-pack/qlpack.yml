@@ -1,0 +1,6 @@
+name: python-debug-pack
+version: 1.0.0
+defaultSuiteFile: default.qls
+dependencies:
+  codeql/python-queries: "*"
+libraryPathDependencies: codeql/python-all

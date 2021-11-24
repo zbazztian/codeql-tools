@@ -1,0 +1,7 @@
+- import: codeql-suites/python-code-scanning.qls
+  from: codeql/python-queries   # query pack is based on the original one
+- exclude:
+    kind:
+      - problem
+      - metric
+      - diagnostic
