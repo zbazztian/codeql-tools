@@ -216,7 +216,7 @@ def get_loc(codeql, debug_pack, dbpath):
   for ql in resolve_queries(codeql, join(debug_pack, 'loc_queries.qls')):
     bqrs = get_bqrs(ql, dbpath)
     for r in read_bqrs(codeql, bqrs, '#select'):
-      result.append(['Lines of Code(' + query_metadata(ql)['id'] + ')'] + r)
+      result.append([query_metadata(ql)['id']] + r)
   return result
 
 
