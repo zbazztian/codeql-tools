@@ -279,7 +279,8 @@ def supported_languages():
     'javascript',
     'java',
     'go',
-    'csharp'
+    'csharp',
+    'python'
   ]
 
 
