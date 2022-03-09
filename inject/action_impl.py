@@ -3,7 +3,7 @@ from inject import info, error, version2str, parse_version, add_versions
 import sys
 import subprocess
 import os
-from os.path import isfile, join, exists
+from os.path import isfile, join, exists, dirname
 import json
 import shutil
 
@@ -53,7 +53,31 @@ def download_pack(pack_name):
       pack_name
     )
   )
-  return j['packs'][0]['packDir']
+
+  if len(j['packs']) > 0:
+    return j['packs'][0]['packDir']
+
+
+  j = json.loads(
+    codeql(
+      'pack', 'ls',
+      '--format', 'json',
+      dirname(codeql_exec)
+    )
+  )
+  packs = j['packs']
+  src = None
+  for p in packs:
+    if packs[p]['name'] == pack_name:
+      src = dirname(p)
+      break
+
+  if src is None:
+    raise Exception('Failed to download pack "' + pack_name + '".')
+
+  ret = join(pack_download_dir, pack_name)
+  shutil.copytree(src, ret)
+  return ret
 
 
 try:
@@ -70,6 +94,7 @@ except subprocess.CalledProcessError as cpe:
   target_version = '1.0.0'
 
 base_path = download_pack(base_name)
+print('base pack downloaded to "' + base_path + '".')
 
 # inject modifications into the base pack, to get our target pack
 inject.main([

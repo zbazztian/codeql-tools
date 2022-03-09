@@ -232,12 +232,12 @@ def main(args):
   )
   parser.add_argument(
     '--name',
-    help='The name of the target pack',
+    help='The name of the output pack',
     default = None
   )
   parser.add_argument(
     '--version',
-    help='The version of the target pack',
+    help='The version of the output pack',
     default = None
   )
   parser.add_argument(
