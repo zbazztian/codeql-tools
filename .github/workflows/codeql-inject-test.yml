@@ -52,7 +52,6 @@ jobs:
         packs: zbazztian/java-queries
 
     - name: manual build command for Java
-      if: ${{ matrix.language == 'java' }}
       run: |
         mvn clean package -DskipTests -f test-projects/acio/pom.xml
 
