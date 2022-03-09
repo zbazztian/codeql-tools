@@ -111,6 +111,10 @@ inject.main([
 target_hash = inject.get_pack_hash(base_path)
 if target_hash != existing_target_hash:
   info('Hashes of existing and generated pack differ. Uploading new pack...')
+  codeql_pack_lock_yml = join(base_path, 'codeql-pack.lock.yml')
+  info('Removing existing "codeql-pack.lock.yml" file...')
+  if isfile(codeql_pack_lock_yml):
+    os.remove(codeql_pack_lock_yml)
   codeql(
     'pack', 'publish',
     '--threads', '0',
