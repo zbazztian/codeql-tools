@@ -24,6 +24,8 @@ runs:
   using: "composite"
   steps:
     - name: inject
+      env:
+        PYTHONPATH: '${{ github.action_path }}:${{ github.action_path }}/..'
       run: |
         python3 \
           "${{ github.action_path }}/action_impl.py" \
