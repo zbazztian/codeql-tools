@@ -27,8 +27,8 @@ jobs:
       uses: zbazztian/codeql-tools/inject@main
       with:
         patterns: |
-          "templates/java-customizations.qll:Security/CWE/**/*.ql"
+          templates/java-customizations.qll:Security/CWE/**/*.ql
         pack: codeql/java-queries
         name: zbazztian/java-queries
-        codeql_path: ${{ steps.init.outputs.codeql-path }}
+        codeql_path: ${{ steps.codeqltoolchain.outputs.codeql-path }}
         default_suite: codeql-suites/java-code-scanning.qls
