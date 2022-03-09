@@ -10,7 +10,7 @@ inputs:
   name:
     description: 'The name of the resulting pack'
     required: true
-  codeql-path:
+  codeql_path:
     description: 'Path of the CodeQL toolchain.'
     required: true
   default_suite:
@@ -27,7 +27,7 @@ runs:
       run: |
         python3 \
           "${{ github.action_path }}/action_impl.py" \
-          "${{ inputs.codeql-path }}" \
+          "${{ inputs.codeql_path }}" \
           "${{ inputs.github_token }}" \
           "${{ inputs.pack }}" \
           "${{ inputs.name }}" \
