@@ -50,7 +50,6 @@ jobs:
       uses: github/codeql-action/init@v1
       with:
         languages: 'java'
-        packs: zbazztian/java-queries
         config-file: .github/codeql-config-inject.yml
 
     - name: manual build command for Java
