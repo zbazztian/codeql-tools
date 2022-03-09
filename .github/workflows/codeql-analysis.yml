@@ -1,10 +1,9 @@
 name: "CodeQL Debug Report Test"
 
 on:
-  push:
-    branches: [ main ]
   schedule:
     - cron: '34 3 * * 6'
+  workflow_dispatch:
 
 jobs:
   analyze:
