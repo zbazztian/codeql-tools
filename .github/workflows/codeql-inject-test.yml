@@ -51,7 +51,7 @@ jobs:
       with:
         languages: 'java'
         packs: zbazztian/java-queries
-        queries: zbazztian/java-queries:codeql-suites/java-security-and-quality.qls
+        config-file: .github/codeql-config-inject.yml
 
     - name: manual build command for Java
       run: |
