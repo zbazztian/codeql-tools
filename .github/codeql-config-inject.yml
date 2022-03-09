@@ -5,6 +5,3 @@ disable-default-queries: true
 packs:
   java:
     - zbazztian/java-queries
-
-queries:
-  - uses: zbazztian/java-queries:codeql-suites/java-security-and-quality.qls
