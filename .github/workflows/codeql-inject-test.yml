@@ -7,7 +7,7 @@ on:
 
 jobs:
   inject:
-    name: Analyze
+    name: inject
     runs-on: ubuntu-latest
     permissions:
       actions: read
@@ -34,7 +34,7 @@ jobs:
         default_suite: codeql-suites/java-code-scanning.qls
 
   analyze:
-    name: Analyze
+    name: analyze
     needs: inject
     runs-on: ubuntu-latest
     permissions:
@@ -51,6 +51,7 @@ jobs:
       with:
         languages: 'java'
         packs: zbazztian/java-queries
+        queries: zbazztian/java-queries:codeql-suites/java-security-and-quality.qls
 
     - name: manual build command for Java
       run: |
