@@ -48,7 +48,7 @@ jobs:
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v1
       with:
-        languages: [ 'java' ]
+        languages: 'java'
         packs: zbazztian/java-queries
 
     - name: manual build command for Java
