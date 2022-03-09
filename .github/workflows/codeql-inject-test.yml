@@ -32,3 +32,31 @@ jobs:
         name: zbazztian/java-queries
         codeql_path: ${{ steps.codeqltoolchain.outputs.codeql-path }}
         default_suite: codeql-suites/java-code-scanning.qls
+
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v1
+      with:
+        languages: [ 'java' ]
+        packs: zbazztian/java-queries
+
+    - name: manual build command for Java
+      if: ${{ matrix.language == 'java' }}
+      run: |
+        mvn clean package -DskipTests -f test-projects/acio/pom.xml
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v1
+      with:
+        upload: false
