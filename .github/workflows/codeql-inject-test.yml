@@ -1,0 +1,34 @@
+name: "CodeQL Inject Test"
+
+on:
+  schedule:
+    - cron: '34 3 * * 6'
+  workflow_dispatch:
+
+jobs:
+  inject:
+    name: Analyze
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+      packages: write
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Initialize CodeQL
+      id:   codeqltoolchain
+      uses: github/codeql-action/init@v1
+
+    - name: CodeQL Inject
+      uses: zbazztian/codeql-tools/inject@main
+      with:
+        patterns: |
+          "templates/java-customizations.qll:Security/CWE/**/*.ql"
+        pack: codeql/java-queries
+        name: zbazztian/java-queries
+        codeql-path: ${{ steps.init.outputs.codeql-path }}
+        default-suite: codeql-suites/java-code-scanning.qls
