@@ -37,7 +37,9 @@ def inject(args):
   customize = getattr(m, 'customize')
   customize(util.ScriptUtils(inputdist))
 
+  util.info('Writing customization hash ...')
   util.write_str(join(inputdist, 'customization_hash'), customization_hash)
+  util.info('Creating output archive "%s"...' % (args.output))
   util.tar_czf(inputdist, args.output)
 
 #gh = GitHub('https://api.github.com', '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')
