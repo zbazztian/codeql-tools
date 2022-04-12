@@ -41,15 +41,18 @@ def hashstr(s):
   return sha1.hexdigest()
 
 
-def make_git(checkout_dir):
-  def git(*args):
+class Git:
+  def __init__(self, checkout_dir):
+    self.checkout_dir = checkout_dir
+
+  def __call__(self, *args):
     command = ['git'] + list(args)
     try:
       return subprocess.run(
         command,
         capture_output=True,
         check=True,
-        cwd=checkout_dir,
+        cwd=self.checkout_dir,
       ).stdout.decode().strip()
     except subprocess.CalledProcessError as cpe:
       print('Command "%s" failed with exit code %d' % (' '.join(command), cpe.returncode))
@@ -59,15 +62,12 @@ def make_git(checkout_dir):
       print(cpe.stderr.decode(), flush=True)
       raise
 
-  return git
+  def branch(self):
+    return self('branch', '--show-current')
 
 
-def git_branch(git):
-  return git('branch', '--show-current')
-
-
-def git_revision(git, branch):
-  return git('rev-parse', branch)
+  def revision(self, branch):
+    return self('rev-parse', branch)
 
 
 def is_dist(directory):

@@ -3,6 +3,14 @@ import util
 import os
 from os.path import dirname, isfile, abspath, join, basename
 import sys
+import ghlib
+
+
+def upload(args):
+  git = util.Git('.')
+  gh = ghlib.GitHub('https://api.github.com', os.environ['GITHUB_TOKEN'])
+  repo = gh.getRepo(args.repo_id)
+  repo.upload_latest(git.branch(), git.revision(git.branch()), args.dist)
 
 
 def inject(args):
@@ -10,7 +18,6 @@ def inject(args):
   args.dist = abspath(args.dist)
   args.output = abspath(args.output)
   scriptdir = dirname(args.script)
-  gitdir = scriptdir
 
   if not isfile(args.script):
     util.error('Given script "%s" does not exist!' % (args.script))
@@ -18,11 +25,11 @@ def inject(args):
   os.chdir(scriptdir)
   util.info('Working directory is "%s"!' % (scriptdir))
 
-  git = util.make_git(gitdir)
+  git = util.Git(scriptdir)
   inputdist = util.extract_dist(args.dist)
   customization_hash = util.hashstr(
     util.sha1sumd(inputdist) +
-    util.git_revision(git, util.git_branch(git))
+    git.revision(git.branch())
   )
   if customization_hash != util.get_customization_hash(args.output):
     util.info('Customization hashes of input and output differ. Recreating output...')
@@ -42,8 +49,6 @@ def inject(args):
   util.info('Creating output archive "%s"...' % (args.output))
   util.tar_czf(inputdist, args.output)
 
-#gh = GitHub('https://api.github.com', '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')
-#repo = gh.getRepo('zbazztian/customized-dist')
 
 def main():
   parser = argparse.ArgumentParser(prog="customize")
@@ -71,6 +76,24 @@ def main():
     help='A python file with the customization script. It should contain a function "customize()" which takes a "Utils" object as a single parameter',
   )
   inject_parser.set_defaults(func=inject)
+
+  # upload
+  upload_parser = subparsers.add_parser(
+    'upload',
+    help='Upload a customized distribution as a release, using the GitHub REST API',
+    description='Upload a customized CodeQL distribution as a release, using the GitHub REST API',
+  )
+  upload_parser.add_argument(
+    '--dist',
+    required=True,
+    help='A .tar.gz file containing a CodeQL distribution',
+  )
+  upload_parser.add_argument(
+    '--repo-id',
+    required=True,
+    help='The repository id in the format of "orgoruser/reponame"',
+  )
+  upload_parser.set_defaults(func=upload)
 
   def print_usage(args):
     print(parser.format_usage())
