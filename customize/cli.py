@@ -6,6 +6,15 @@ import sys
 import ghlib
 
 
+def download(args):
+  gh = ghlib.GitHub('https://api.github.com', os.environ['GITHUB_TOKEN'])
+  repo = gh.getRepo(args.repo_id)
+  a = repo.latest_asset(args.tag_filter, 'codeql-bundle-*.tar.gz')
+  if a is None:
+    util.error('No distribution available for tag filter "%s"!' % (args.tag_filter))
+
+  repo.download_asset(a, args.output_dir)
+
 def upload(args):
   git = util.Git('.')
   gh = ghlib.GitHub('https://api.github.com', os.environ['GITHUB_TOKEN'])
@@ -94,6 +103,29 @@ def main():
     help='The repository id in the format of "orgoruser/reponame"',
   )
   upload_parser.set_defaults(func=upload)
+
+  # download
+  download_parser = subparsers.add_parser(
+    'download',
+    help='Download a customized distribution using the GitHub Releases REST API',
+    description='Download a customized CodeQL distribution using the GitHub Releases REST API',
+  )
+  download_parser.add_argument(
+    '--output-dir',
+    required=True,
+    help='The directory in which to store the downloaded CodeQL distribution',
+  )
+  download_parser.add_argument(
+    '--repo-id',
+    required=True,
+    help='The repository id in the format of "orgoruser/reponame"',
+  )
+  download_parser.add_argument(
+    '--tag-filter',
+    required=True,
+    help='A tag filter, which may contain globs ("*").',
+  )
+  download_parser.set_defaults(func=download)
 
   def print_usage(args):
     print(parser.format_usage())

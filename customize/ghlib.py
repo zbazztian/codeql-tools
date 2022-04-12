@@ -17,7 +17,7 @@ def json_accept_header():
 def sort_by_created_at(releasesorassets):
   return sorted(
     releasesorassets,
-    key=lambda e: parse_date(e['created_at']),
+    key=lambda e: util.parse_date(e['created_at']),
     reverse=True
   )
 
@@ -47,7 +47,7 @@ class Repo:
     self.repo_id = repo_id
 
 
-  def latest_asset(tagfilter, assetfilter):
+  def latest_asset(self, tagfilter, assetfilter):
     ''' note that this will not necessarily return a file
         from the _latest_ release. It will return a file
         from the newest release which matches the given
@@ -56,7 +56,7 @@ class Repo:
         process of uploading an asset, which first requires
         to create an empty release (race condition)'''
     for r in sort_by_created_at(self.list_releases()):
-      if fnmatch(r['name'], tagfilter):
+      if fnmatch(r['tag_name'], tagfilter):
         for a in sort_by_created_at(r['assets']):
           if fnmatch(a['name'], assetfilter):
             return a
